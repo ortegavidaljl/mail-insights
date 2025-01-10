@@ -1,13 +1,11 @@
 <template>
-    <div v-show="isImageLoaded">
-      <img 
-        class="absolute bottom-4 top-2.5 right-4 w-32"
-        :src=lele
-        alt="Logo"
-        @error="handleImageError"
-        @load="handleImageLoad"
-      />
-    </div>
+    <img
+      v-show="isImageLoaded"
+      :src=lele
+      alt="Logo"
+      @error="handleImageError"
+      @load="handleImageLoad"
+    />
   </template>
   
   <script setup>

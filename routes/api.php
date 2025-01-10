@@ -17,6 +17,10 @@ Route::prefix('x-ray')->group(function () {
     Route::get('/report/{id}', [ReportController::class, 'show']);
 });
 
+Route::prefix('presence')->group(function () {
+    Route::get('/{name}', [AccountController::class, 'check_existence']);
+});
+
 
 // Domain related routes
 //Route::get('/domain/{name}', [DomainController::class, 'rdapLookup']);

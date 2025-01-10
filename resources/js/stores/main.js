@@ -11,6 +11,8 @@ export const useMainStore = defineStore('main', () => {
   
 		const toolList = ref([]);
 
+		const RDAPregistryData = ref({});
+
 		async function loadToolsData() {
 			const data = [];
 			const promises = Object.keys(routeModules).map(async (path) => {
@@ -90,5 +92,5 @@ export const useMainStore = defineStore('main', () => {
 			this.id = null;
 		}
 
-    return { appVersion, toolList, backgroundHexStartColor, backgroundHexEndColor, backgroundHexChangeColor, isLoggedIn, login, logout }
+    return { appVersion, toolList, RDAPregistryData, backgroundHexStartColor, backgroundHexEndColor, backgroundHexChangeColor, isLoggedIn, login, logout }
   })

@@ -7,6 +7,8 @@ use App\Models\Account;
 use App\Models\Report;
 use App\Models\Domain;
 use App\Http\Resources\AccountCollection;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use App\Lib\CheckEmail;
 
 class AccountController extends Controller
 {
@@ -46,6 +48,34 @@ class AccountController extends Controller
     } catch (\Exception $e) {
 			// Handle other general exceptions
 			return response()->json(['message' => 'Se produjo un error al crear la cuenta: ' . $e->getMessage()], 500);
+    }
+	}
+
+	public function check_existence(Request $request)
+	{
+		try {
+			if (filter_var($request->name, FILTER_VALIDATE_EMAIL) === false) {
+				echo "Formato de correo electrónico inválido";
+				return; // Detener la ejecución del script
+			}
+		
+			// Sanitizar la dirección de correo electrónico
+			$emailSanitizado = filter_var($request->name, FILTER_SANITIZE_EMAIL);
+			$emailSanitizado = htmlspecialchars($emailSanitizado);
+		
+		
+			$lele = new CheckEmail();
+
+			$lolo = $lele->verify($emailSanitizado);
+		
+			return response()->json($lolo);
+
+		} catch (ModelNotFoundException $e) {
+			// No existen dominios activos
+			return response()->json(['message' => $e->getMessage()], 404);
+    } catch (\Exception $e) {
+			// Handle other general exceptions
+			return response()->json(['message' => 'Se produjo un error al comprobar el reporte: ' . $e->getMessage()], 500);
     }
 	}
 

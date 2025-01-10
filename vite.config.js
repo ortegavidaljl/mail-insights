@@ -16,5 +16,13 @@ export default defineConfig({
     alias: {
       '@': fileURLToPath(new URL('./resources/js', import.meta.url))
     }
+  },
+  // I have the dev env in another host. So I need to set these lines to make previsualization and hmr work
+  server: {
+    host: '0.0.0.0',
+    port: 5173,
+    hmr: {
+        host: '192.168.1.100'
+    },
   }
 });
