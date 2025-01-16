@@ -2,7 +2,7 @@ import ipaddr from 'ipaddr.js'
 import punycode from 'punycode/'
 import { useMainStore } from '@/stores/main'
 
-var rdapStatusInfo = {
+export const rdapStatusInfo = {
   "validated": "Signifies that the data of the object instance has been found to be accurate. This type of status is usually found on entity object instances to note the validity of identifying contact information.",
   "renew prohibited": "Renewal or reregistration of the object instance is forbidden.",
   "update prohibited": "Updates to the object instance are forbidden.",
@@ -166,10 +166,10 @@ function getBestURL(urls) {
   return urls[0];
 }
 
-let lastQueriedURL = null;
+let registryData = {};
 
-async function sendQuery(url, followReferral = false, followingReferral = true) {
-  lastQueriedURL = null;
+async function sendQuery(url, followReferral = false, followingReferral = false) {
+  let data = {};
 
   try {
     const response = await fetch(url, { mode: 'cors' });
@@ -178,8 +178,7 @@ async function sendQuery(url, followReferral = false, followingReferral = true) 
       throw new Error('Network response was not ok');
     }
 
-    const data = await response.json();
-    lastQueriedURL = response.url;
+    data = await response.json();
 
     if (response.status === 404) {
       handleError('This object does not exist.');
@@ -190,6 +189,7 @@ async function sendQuery(url, followReferral = false, followingReferral = true) 
     }
 
     if (followReferral && data.links) {
+      registryData = data;
       for (let i = 0; i < data.links.length; i++) {
         const l = data.links[i];
 
@@ -199,9 +199,15 @@ async function sendQuery(url, followReferral = false, followingReferral = true) 
       }
     }
 
-    return data;
+    let rdata = registryData
+    registryData = {}
+
+    if (followingReferral) return {"registry": processObject(rdata), "registrar": processObject(data)}
+    else return {"registry": processObject(data)}
+    
   } catch (error) {
     console.log('There was an error with the fetch operation:', error);
+    console.log("La información de " + (followReferral ? "registry" : "registrar") + " no esta disponible");
 
     if (followingReferral) {
       console.log('Unable to perform query. This may be because the '
@@ -212,37 +218,12 @@ async function sendQuery(url, followReferral = false, followingReferral = true) 
         + ' the "Follow referral to registrar\'s RDAP record" checkbox'
         + ' and try again.');
     }
-  }
-}
 
+    let rdata = registryData
+    registryData = {}
 
-function handleResponse(xhr, followReferral=false, followingReferral=false) {
-  lastQueriedURL = xhr.responseURL;
-
-  if (404 == xhr.status) {
-    console.log('This object does not exist.');
-
-  } else if (200 != xhr.status) {
-    console.log(xhr.status + ' error: ' + xhr.statusText);
-
-  } else {
-    if (followReferral && xhr.response.links) {
-      for (var i = 0 ; i < xhr.response.links.length ; i++) {
-        var l = xhr.response.links[i];
-
-        if ('related' == l.rel && 'application/rdap+json' == l.type && l.href.match(/^(https?:|)\/\//i)) {
-          sendQuery(l.href, false, true);
-          return;
-
-        }
-      }
-    }
-
-    try {
-      return xhr.response
-    } catch (e) {
-      console.log('Exception: "' + e.message + '" on line ' + e.lineNumber);
-    }
+    if (followingReferral) return {"registry": rdata ? processObject(rdata) : null, "registrar": data ? processObject(data) : null}
+    else return {"registry": processObject(data)}
   }
 }
 
@@ -263,7 +244,6 @@ async function loadRegistries() {
   }
 }
 
-
 function guessType(object) {
   var patterns = [
     [ /^(asn?|)\d+$/i, "autnum" ],
@@ -279,4 +259,331 @@ function guessType(object) {
       return patterns[i][1]
     }
   }
+}
+
+// process an RDAP object. Argument is a JSON object, return
+// value is an element that can be inserted into the page
+function processObject(object, toplevel, followReferral=true, followingReferral=false) {
+  if (!object) {
+    console.log(object);
+    return false;
+  }
+
+  let output = {}
+
+  switch (object.objectClassName) {
+    case 'domain':
+      output = processDomain(object, toplevel);
+      break;
+    case 'nameserver':
+      output = processNameserver(object, toplevel);
+      break;
+    case 'entity':
+      output = processEntity(object, toplevel);
+      break;
+    case 'autnum':
+      output = processAutnum(object, toplevel);
+      break;
+    case 'ip network':
+      output = processIp(object, toplevel);
+      break;
+    default:
+      if (object.hasOwnProperty("errorCode")) {
+        return console.log(object.errorCode + ' error: ' + object.title);
+      }
+
+      output = processUnknown(object);
+      break;
+  }
+
+  output["report_type"] = object.objectClassName ?? "none"
+
+  return output
+}
+
+// process a domain
+function processDomain(object, toplevel=false) {
+  let properties = {}
+
+  if (toplevel) document.title = 'Domain ' + (object.unicodeName ? object.unicodeName : object.ldhName).toUpperCase() + ' - RDAP Lookup';
+
+  if (object.hasOwnProperty("unicodeName")) {
+    properties['name'] = object.unicodeName.toLowerCase()
+    properties['ascii_name'] = object.ldhName.toLowerCase()
+  } else {
+    properties['name'] = object.ldhName.toLowerCase()
+  }
+
+  if (object.hasOwnProperty("handle")) properties['handle'] = object.handle;
+
+  // process events, status and entities here, then set them to null so
+  // processCommonObjectProperties() doesn't process them again. this
+  // makes the output look more like a traditional whois record:
+  if (object.hasOwnProperty("events"))    properties["events"] = processEvents(object.events);
+  if (object.hasOwnProperty("status"))    properties["status"] = processStatus(object.status);
+  if (object.hasOwnProperty("entities"))  properties["entities"] = processEntities(object.entities);
+
+  delete object.events;
+  delete object.status;
+  delete object.entities;
+
+  if (object.hasOwnProperty("nameservers")) {
+    properties['nameservers'] = [];
+
+    for (var i = 0 ; i < object.nameservers.length ; i++){
+      properties['nameservers'].push(processObject(object.nameservers[i]))
+    }
+  }
+
+  if (!object.hasOwnProperty("secureDNS")) {
+    properties['dnssec'] = false;
+  } else {
+    properties['dnssec'] = processDNSSEC(object);//TODO
+  }
+
+  return { ...properties, ...processCommonObjectProperties(object) };
+}
+
+// process a nameserver
+function processNameserver(object, toplevel=false) {
+  let properties = {}
+
+  if (toplevel) document.title = 'Nameserver ' + object.ldhName + ' - RDAP Lookup';
+
+  properties['name'] = object.ldhName;
+  if (object.hasOwnProperty("unicodeName")) properties['unicode_name'] = object.unicodeName;
+  if (object.hasOwnProperty("handle")) properties['handle'] = object.handle;
+
+  if (object.hasOwnProperty("ipAddresses")) {
+    properties['ipAddresses'] = [];
+    if (object.ipAddresses.hasOwnProperty("v4")) {
+      for (var i = 0 ; i < object.ipAddresses.v4.length ; i++) {
+        properties['ipAddresses'].push(object.ipAddresses.v4[i])
+      }
+    }
+
+    if (object.ipAddresses.hasOwnProperty("v6")) {
+      for (var i = 0 ; i < object.ipAddresses.v6.length ; i++) {
+        properties['ipAddresses'].push(object.ipAddresses.v6[i])
+      }
+    }
+  }
+
+  return { ...properties, ...processCommonObjectProperties(object) };
+}
+
+// process an entity
+function processEntity(object, toplevel=false) {
+  let properties = {}
+
+  if (toplevel) document.title = 'Entity ' + object.handle + ' - RDAP Lookup';
+
+  if (object.hasOwnProperty("handle")) properties['handle'] = object.handle;
+
+  if (object.hasOwnProperty("publicIds")) {
+    properties['public_ids'] = [];
+    for (var i = 0 ; i < object.publicIds.length ; i++){
+      properties['public_ids'].push(object.publicIds[i].type + ':', object.publicIds[i].identifier)
+    }
+  }
+
+  if (object.hasOwnProperty("roles")) properties['roles'] = object.roles;
+
+  properties['contact_info'] = [];
+
+  if (object.hasOwnProperty("jscard")) {
+    properties['contact_info'].push(object.jscard);
+  } else if (object.hasOwnProperty("jscard_0")) {
+    properties['contact_info'].push(object.jscard_0);
+  } else if (object.hasOwnProperty("vcardArray") && object.vcardArray[1]) {
+    properties['contact_info'].push(processVCardArray(object.vcardArray[1]));
+  }
+
+  return { ...properties, ...processCommonObjectProperties(object) };
+}
+
+// process an AS number
+function processAutnum(object, dl, toplevel=false) {
+  let properties = {}
+
+  if (toplevel) document.title = 'AS Number ' + object.handle + ' - RDAP Lookup';
+
+  if (object.hasOwnProperty("name")) properties['network_name'] = object.name;
+  if (object.hasOwnProperty("type")) properties['network_type'] = object.type;
+
+  return { ...properties, ...processCommonObjectProperties(object) };
+}
+
+// process an IP or IP block
+function processIp(object, dl, toplevel=false) {
+  let properties = {}
+
+  if (toplevel) document.title = 'IP Network ' + object.handle + ' - RDAP Lookup';
+
+  if (object.hasOwnProperty("ipVersion")) properties["version"] = object.ipVersion;
+  if (object.hasOwnProperty("startAddress") && object.hasOwnProperty("endAddress")) properties["address_range"] = object.startAddress + ' - ' + object.endAddress
+  if (object.hasOwnProperty("name")) properties["network_name"] = object.name
+  if (object.hasOwnProperty("type")) properties["network_type"] = object.type
+  if (object.hasOwnProperty("country")) properties["country"] = object.country
+  if (object.hasOwnProperty("parentHandle")) properties["parent_network"] = object.parentHandle
+  if (object.hasOwnProperty("cidr0_cidrs")) properties["cidr_prefix"] = processCIDRs(object.cidr0_cidrs)
+  
+  return { ...properties, ...processCommonObjectProperties(object) };
+}
+
+function processUnknown(object) {
+  return processCommonObjectProperties(object);
+}
+
+// called by the individual object processors, since all RDAP objects have a similar set of
+// properties. the first argument is the RDAP object and the second is the <dl> element
+// being used to display that object.
+function processCommonObjectProperties(object) {
+  let properties = {}
+
+  if (object.hasOwnProperty("status")) properties["status"] = processStatus(object.status)
+  if (object.hasOwnProperty("events")) properties["events"] = processEvents(object.events)
+  if (object.hasOwnProperty("entities")) properties["entities"] = processEntities(object.entities)
+  if (object.hasOwnProperty("remarks")) properties["remarks"] = object.remarks
+  if (object.hasOwnProperty("notices")) properties["notices"] = object.notices
+  if (object.hasOwnProperty("links")) properties["links"] = object.links
+  if (object.hasOwnProperty("lang")) properties["lang"] = object.lang
+  if (object.hasOwnProperty("port43")) properties["port43"] = object.port43
+  if (object.hasOwnProperty("rdapConformance")) properties["rdap_conformance"] = object.rdapConformance
+
+  //properties["raw_data"] = JSON.stringify(object, null, 2)
+
+  return properties;
+}
+
+function processCIDRs(cidrs) {
+  var list = [];
+  for (let i = 0 ; i < cidrs.length ; i++) {
+    var cidr = (cidrs[i].v6prefix ? cidrs[i].v6prefix : cidrs[i].v4prefix) + '/' + cidrs[i].length;
+    list += cidr;
+  }
+  return list;
+}
+
+// add the object's events
+function processEvents(events) {
+  let event_list = []
+
+  for (var i = 0 ; i < events.length ; i++) {
+    event_list.push({
+      "date": new Date(events[i].eventDate).toLocaleString(),
+      "action": events[i].eventAction,
+      "actor": events[i].eventActor
+    })
+  }
+
+  return event_list;
+}
+
+// add the object's status codes
+function processStatus(status) {
+  let status_list = []
+
+  for (var i = 0 ; i < status.length ; i++) {
+    status_list.push(status[i]);
+  }
+
+  return status_list;
+}
+
+function processEntities(entities) {
+  let entity_list = []
+
+  for (var i = 0 ; i < entities.length ; i++){
+    entity_list.push(processObject(entities[i]));
+  }
+
+  return entity_list;
+}
+
+function processVCardArray(vcardArray) {
+  const vcardObject = {};
+
+  for (let i = 0; i < vcardArray.length; i++) {
+    const node = vcardArray[i];
+    const type = node[0];
+    const value = node[3];
+
+    switch (type) {
+      case 'fn':
+        vcardObject.fullName = value;
+        break;
+      case 'n':
+        vcardObject.name = value;
+        break;
+      case 'email':
+        vcardObject.email = value;
+        break;
+      case 'tel':
+        vcardObject.telephone = value;
+        break;
+      case 'adr':
+        vcardObject.address = value.join("").length == 0 ? node[1]["label"] : value.join(" ");
+        break;
+      case 'org':
+        vcardObject.organization = value;
+        break;
+      case 'title':
+        vcardObject.title = value;
+        break;
+      case 'role':
+        vcardObject.role = value;
+        break;
+      case 'url':
+        vcardObject.url = value;
+        break;
+      default:
+        if (!vcardObject.other) {
+          vcardObject.other = [];
+        }
+        vcardObject.other.push({ type, value });
+        break;
+    }
+  }
+
+  return vcardObject;
+}
+
+function processDNSSEC(domain) {
+  let properties = {}
+
+  if (domain.secureDNS.hasOwnProperty("zoneSigned")) {
+    properties["zone_signed"] = domain.secureDNS.zoneSigned ? true : false
+  }
+
+  if (domain.secureDNS.hasOwnProperty("delegationSigned")) {
+    properties["delegation_signed"] = domain.secureDNS.delegationSigned ? true : false
+  }
+
+  if (domain.secureDNS.hasOwnProperty("maxSigLife")) {
+    properties["max_signature_life"] = domain.secureDNS.maxSigLife
+  }
+
+  if (domain.secureDNS.hasOwnProperty("dsData")) {
+    properties["ds_record"] = []
+
+    for (var i = 0 ; i < domain.secureDNS.dsData.length ; i++) {
+      var ds = domain.secureDNS.dsData[i];
+
+      properties["ds_record"].push([domain.ldhName+".", "IN", "DS", ds.keyTag, ds.algorithm, ds.digestType, ds.digest].join(" "))
+
+    }
+  }
+
+  if (domain.secureDNS.hasOwnProperty("keyData")) {
+    properties["key_data"] = []
+
+    for (var i = 0 ; i < domain.secureDNS.keyData.length ; i++) {
+      var dnsKey = domain.secureDNS.keyData[i];
+
+      properties["ds_record"].push([domain.ldhName+".", "IN", "DNSKEY", dnsKey.flags, dnsKey.protocol, dnsKey.algorithm, dnsKey.publicKey.match(/./g).join("\u200B")].join(" "))
+    }
+  }
+
+  return properties;
 }

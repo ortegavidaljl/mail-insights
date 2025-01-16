@@ -8,23 +8,23 @@
 
 		<div class="sm:text-lg text-base text-start min-w-[467px] sm:min-w-[550px]">
 	
-			<table class="min-w-full divide-y-2 divide-gray-200 bg-white/20 rounded">
+			<table class="min-w-full divide-y-2 divide-gray-200 bg-black/30 rounded">
 				<tbody class="divide-y divide-gray-200 ">
 					<tr><td class="text-right font-bold w-1/3 p-2">Dirección IPv4</td><td class="p-2 cursor-pointer" @click="copyToClipboard(ipv4)">{{ ipv4 }}</td></tr>
 					
 					<template v-if="ipv4RDAP">
-						<tr><td class="text-right font-bold p-2">Nombre de la red</td><td class="p-2">{{ ipv4RDAP["name"] }} ({{ ipv4RDAP["country"] }})</td></tr>
-						<tr><td class="text-right font-bold p-2">Rango</td><td class="p-2">{{ ipv4RDAP["handle"] }}</td></tr>
+						<tr><td class="text-right font-bold p-2">Nombre de la red</td><td class="p-2">{{ ipv4RDAP["network_name"] }} ({{ ipv4RDAP["country"] }})</td></tr>
+						<tr><td class="text-right font-bold p-2">Rango</td><td class="p-2">{{ ipv4RDAP["address_range"] }}</td></tr>
 					</template>
 				</tbody>
 			</table>
 
-			<table class="mt-2 min-w-full divide-y-2 divide-gray-200 table-auto bg-white/20 rounded">
+			<table class="mt-2 min-w-full divide-y-2 divide-gray-200 table-auto bg-black/30 rounded">
 				<tbody class="divide-y divide-gray-200 ">
 					<tr><td class="text-right font-bold w-1/3 p-2">Dirección IPv6</td><td class="p-2 cursor-pointer" @click="copyToClipboard(ipv6)">{{ ipv6 }}</td></tr>
 					<template v-if="ipv6RDAP">
-						<tr><td class="text-right font-bold p-2">Nombre de la red</td><td class="p-2">{{ ipv6RDAP["name"] }} ({{ ipv6RDAP["country"] }})</td></tr>
-						<tr><td class="text-right font-bold p-2">Rango</td><td class="p-2">{{ ipv6RDAP["handle"] }}</td></tr>
+						<tr><td class="text-right font-bold p-2">Nombre de la red</td><td class="p-2">{{ ipv6RDAP["network_name"] }} ({{ ipv6RDAP["country"] }})</td></tr>
+						<tr><td class="text-right font-bold p-2">Rango</td><td class="p-2">{{ ipv6RDAP["address_range"] }}</td></tr>
 					</template>
 				</tbody>
 			</table>
@@ -57,7 +57,7 @@
 			if (response.data) {
 				ipv4.value = response.data
 				await query(response.data, false).then((data) => {
-					ipv4RDAP.value = data
+					ipv4RDAP.value = data.registry
 				})
 				
 			}
@@ -72,8 +72,7 @@
 			if (response.data) {
 				ipv6.value = response.data
 				await query(response.data, false).then((data) => {
-					ipv6RDAP.value = data
-				
+					ipv6RDAP.value = data.registry
 				})
 			}
 		}).catch(() => {

@@ -3,7 +3,7 @@ export const data = [{
   name: 'Lookup',
   description: 'Comprueba la información de dominios e IP mediante RDAP',
   order: 4,
-  enable: false
+  enable: true
 }];
 
 export const routes = [{

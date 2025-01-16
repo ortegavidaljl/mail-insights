@@ -1,13 +1,13 @@
 <template>
-	<div class="container mx-auto justify-center flex flex-col w-full items-center text-white text-center py-16">
+	<div :class=" (!report ? 'justify-center' : '') + ' flex flex-col w-full items-center text-white text-center py-16 overflow-y-auto'">
 		
-		<header class="-mt-12">
+		<header :class="!report ? '-mt-12' : ''">
 			<h1 class="text-4xl text-center sm:text-5xl">Escribe en el buscador</h1>
-			<p class="text-right mr-0.5 mb-16 sm:text-lg">... y pulsa Enter para obtener más información:</p>
+			<p class="text-right mr-0.5 mb-16 sm:text-lg">... y pulsa Enter para comprobar mediante RDAP:</p>
 		</header>
 
 		<div class="sm:text-lg text-base text-start w-2/4 min-w-[467px] sm:min-w-[550px]">
-			<input v-model="element" @keyup.enter="getRDAPData" placeholder="Dominio, IP, ASN, TLD" type="text" class="shadow-md hover:shadow-xl text-black py-3 px-4 block w-full border-gray-200 shadow-lg rounded focus:z-10 focus:outline-none focus:ring"/>
+			<input v-model="element" :disabled="isLoading" @keyup.enter="getRDAPData" placeholder="Dominio, IP, ASN, TLD" type="text" class="shadow-md hover:shadow-xl text-black py-3 px-4 block w-full border-gray-200 shadow-lg rounded focus:z-10 focus:outline-none focus:ring disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200 disabled:shadow-none"/>
 
 			<div v-if="isLoading" class="flex flex-row gap-2 text-sm items-center ml-1 mt-2">
 				<svg aria-hidden="true" class="w-3 h-3 text-gray-200 animate-spin fill-blue-600" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -17,64 +17,100 @@
 				<span>Consultando servidores RDAP...</span>
 			</div>
 
-			<table v-if="report" class="mt-4 min-w-full divide-y-2 divide-gray-200 bg-white/20 rounded">
+			<table v-if="report && reportSources.length == 0" class="mt-4 min-w-full divide-y-2 divide-gray-200 bg-black/30 rounded">
 				<thead>
 					<tr><th class="p-2" colspan="2"><span class="flex justify-center items-center">
-						<MDIIcon :class="'pr-2 ' + color" :icon="report.status == 'success' ? 'CheckCircleOutline' : 'AlertCircleOutline'"/>
-						{{ report.status == 'success' ? "El servidor ha aceptado la conexión; La cuenta podría existir." : "La cuenta no existe, o no se ha podido conectar con el servidor." }}
+						<MDIIcon class="pr-2 fill-red-600" icon="AlertCircleOutline"/>
+						No se ha encontrado información sobre el elemento 
 					</span></th></tr>
 				</thead>
-				<tbody class="divide-y divide-gray-200">
-					<template v-if="report.status == 'success'">
-						<tr><td class="p-2 text-center" colspan="2">Ten en cuenta que, en los casos en los que el dominio utilice un sistema intermediario de correo, el resultado podría no ser completamente fiable. Esto se debe a que el servidor podría aceptar inicialmente los mensajes dirigidos a cualquier cuenta de correo para procesarlos posteriormente, pero podría rechazarlos más tarde si la cuenta destinataria no existe o si ocurre algún problema.</td></tr>
-					</template>
-					<template v-if="report.status == 'error'">
-						<tr v-if="report.mx_server"><td class="text-right font-bold w-40 p-2">Servidor MX</td><td class="p-2">{{ report.mx_server }}</td></tr>
-						<tr v-if="report.output.detail"><td class="text-right font-bold p-2">Detalles</td><td class="p-2">{{ report.output.detail }}</td></tr>
-						<tr v-if="report.output.error" ><td class="text-right font-bold p-2">Error</td><td class="p-2">{{ report.output.error }}</td></tr>
-						<tr v-if="report.output.smtp_code"><td class="text-right font-bold p-2">Código SMTP</td><td class="p-2">{{ report.output.smtp_code }} {{ report.output.smtp_code_ex }}</td></tr>
-					</template>
-				</tbody>
 			</table>
+
+			<DomainReport v-if="report !== null && reportType == 'domain'" :report="report"/>
+			<IPReport v-if="report !== null && reportType == 'ip network'" :report="report.registry"/>
+			<AutnumReport v-if="report !== null && reportType == 'autnum'" :report="report.registry"/>
+
+			<p v-if="report !== null && reportSources.length >= 1 && !isLoading" class="text-center mt-2 text-xs">Datos obtenidos desde {{ reportSources.join(" y ") }}</p>
 		</div>
 
 	</div>
 </template>
 
+<style>
+/* Tooltip container */
+.tooltip {
+  position: relative;
+	display: inline-block;
+}
+
+/* Tooltip text */
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: 400px;
+  text-align: center;
+ 
+	position: absolute;
+  z-index: 1;
+  top: 50%;
+	transform: translate(10px, -50%);
+  left: 105%;
+}
+
+/* Show the tooltip text when you mouse over the tooltip container */
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+}
+
+.tooltip .tooltiptext::after {
+  content: " ";
+  position: absolute;
+  top: 50%;
+  right: 100%; /* To the left of the tooltip */
+  margin-top: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: transparent rgba(255, 255, 255, 0.3) transparent transparent;
+}
+</style>
+
 <script setup>
 	import { ref, computed, onUnmounted } from 'vue'
 	import MDIIcon from '@/components/MDIIcon.vue'
 	import { query } from '@/utils/rdap'
+	import DomainReport from '@/tools/lookup/components/DomainReport.vue'
+	import IPReport from '@/tools/lookup/components/IPReport.vue'
+	import AutnumReport from '@/tools/lookup/components/AutnumReport.vue'
 
 	const element = ref('')
 	const isLoading = ref(false)
 	const report = ref(null)
 
-	const color = computed(() => {
-		switch (report.value.status) {
-			case 'success':
-				return 'fill-green-600';
-			case 'error':
-				return 'fill-red-600';
-			case 'warning':
-				return 'fill-yellow-600';
-			default:
-				return 'fill-blue-600';
-		}
+	const reportType = computed(() => {
+		return report.value?.registry?.report_type ?? report.value?.registrar?.report_type
+	});
+
+	const reportSources = computed(() => {
+		let sources = [];
+
+		if (typeof report.value?.registry?.report_type !== 'undefined' && report.value?.registry?.report_type !== "none") sources.push("Registry")
+		if (typeof report.value?.registrar?.report_type !== 'undefined' && report.value?.registrar?.report_type !== "none") sources.push("Registrar")
+
+		return sources;
 	});
 
 	async function getRDAPData() {
 		if (!element.value) {
 			return
 		}
+		report.value = null
 		isLoading.value = true
 
-		await query(element.value, false)
+		await query(element.value, true)
 		.then((data) => {
+			
 			report.value = data
-			console.log(report.value)
 		}).catch((error) => {
-			console.log(error)
+			report.value = null
 		}).finally(function () {
 			isLoading.value = false
 		});

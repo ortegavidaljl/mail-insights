@@ -17,7 +17,7 @@
 				<span>Comprobando la existencia de la cuenta...</span>
 			</div>
 
-			<table v-if="report" class="mt-4 min-w-full divide-y-2 divide-gray-200 bg-white/20 rounded">
+			<table v-if="report" class="mt-4 min-w-full divide-y-2 divide-gray-200 bg-black/30 rounded">
 				<thead>
 					<tr><th class="p-2" colspan="2"><span class="flex justify-center items-center">
 						<MDIIcon :class="'pr-2 ' + color" :icon="report.status == 'success' ? 'CheckCircleOutline' : 'AlertCircleOutline'"/>
