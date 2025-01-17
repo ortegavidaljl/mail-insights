@@ -17,7 +17,7 @@ All contributions are welcomed.
 
 - **Lookup**: A tool that shows the RDAP data of a domain, IP or ASN.
  
-- [Future] **RBL**: A tool to check if an IP is blacklisted.
+- **RBL**: A tool to check if an IP or hostname is blacklisted.
 
 - [Future] **Query**: A tool to check DNS records on multiple servers at once to verify their information or approximate propagation status.
 

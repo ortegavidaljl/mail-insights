@@ -21,6 +21,9 @@ Route::prefix('presence')->group(function () {
     Route::get('/{name}', [AccountController::class, 'check_existence']);
 });
 
+Route::prefix('query')->group(function () {
+    Route::get('/{type}/{name}', [DomainController::class, 'dnsLookup']);
+});
 
 // Domain related routes
 //Route::get('/domain/{name}', [DomainController::class, 'rdapLookup']);
