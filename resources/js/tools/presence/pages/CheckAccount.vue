@@ -1,12 +1,12 @@
 <template>
-	<div class="container mx-auto justify-center flex flex-col w-full items-center text-white text-center py-16">
+	<div class="flex flex-col w-full justify-center items-center text-white text-center py-16 overflow-y-auto">
 		
 		<header class="-mt-12">
 			<h1 class="text-4xl text-center sm:text-5xl">Escribe una dirección</h1>
 			<p class="text-right mr-0.5 mb-16 sm:text-lg">... y pulsa Enter para comprobar si existe:</p>
 		</header>
 
-		<div class="sm:text-lg text-base text-start w-2/4 min-w-[467px] sm:min-w-[550px]">
+		<div class="sm:text-lg text-base text-start w-11/12 md:w-3/4 lg:w-3/5 xl:w-2/4">
 			<input v-model="email" @keyup.enter="checkAccount" placeholder="cuenta@dominio.tld" type="text" class="shadow-md hover:shadow-xl text-black py-3 px-4 block w-full border-gray-200 shadow-lg rounded focus:z-10 focus:outline-none focus:ring"/>
 
 			<div v-if="isLoading" class="flex flex-row gap-2 text-sm items-center ml-1 mt-2">

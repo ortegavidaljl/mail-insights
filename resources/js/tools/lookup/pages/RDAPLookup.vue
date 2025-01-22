@@ -6,7 +6,7 @@
 			<p class="text-right mr-0.5 mb-16 sm:text-lg">... y pulsa Enter para comprobar mediante RDAP:</p>
 		</header>
 
-		<div class="sm:text-lg text-base text-start w-2/4 min-w-[467px] sm:min-w-[550px]">
+		<div class="sm:text-lg text-base text-start w-11/12 md:w-3/4 lg:w-3/5 xl:w-2/4">
 			<input v-model="element" :disabled="isLoading" @keyup.enter="getRDAPData" placeholder="Dominio, IP, ASN, TLD" type="text" class="shadow-md hover:shadow-xl text-black py-3 px-4 block w-full border-gray-200 shadow-lg rounded focus:z-10 focus:outline-none focus:ring disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200 disabled:shadow-none"/>
 
 			<div v-if="isLoading" class="flex flex-row gap-2 text-sm items-center ml-1 mt-2">
