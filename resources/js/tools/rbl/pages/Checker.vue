@@ -48,7 +48,7 @@
 </template>
 
 <script setup>
-	import { ref, watch  } from 'vue'
+	import { ref } from 'vue'
 	import { rblList } from '@/utils/rbl'
 	import ipaddr from 'ipaddr.js'
 	import api from '@/utils/api'

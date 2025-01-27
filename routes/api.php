@@ -22,7 +22,7 @@ Route::prefix('presence')->group(function () {
 });
 
 Route::prefix('query')->group(function () {
-    Route::get('/{type}/{name}', [DomainController::class, 'dnsLookup']);
+    Route::get('/{type}/{name}/{nameserver?}', [DomainController::class, 'dnsLookup']);
 });
 
 // Domain related routes

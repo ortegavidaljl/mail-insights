@@ -11,6 +11,11 @@ class DomainController extends Controller
 	{
 
     $dns = new Dns();
+
+    if ($request->has('nameserver')) {
+      $result = $dns->useNameserver($request->nameserver);
+    }
+
     $result = $dns->getRecords($request->name, $request->type);
     
     $recordsArray = [];

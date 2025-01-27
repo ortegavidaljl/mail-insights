@@ -1,0 +1,102 @@
+[{
+  "name": "Aire Networks",
+  "ip": "5.35.200.176",
+  "country": "es",
+  "location": "España"
+},
+{
+  "name": "OpenDNS",
+  "ip": "208.67.222.222",
+  "country": "us",
+  "location": "Estados Unidos"
+},
+{
+  "name": "Cira",
+  "ip": "149.112.121.10",
+  "country": "ca",
+  "location": "Canadá"
+},
+{
+  "name": "Por determinar",
+  "ip": "1.1.1.1",
+  "country": "ar",
+  "location": "Argentina"
+},
+{
+  "name": "COLT",
+  "ip": "82.112.205.222",
+  "country": "it",
+  "location": "Italia"
+},
+{
+  "name": "Virgin Media",
+  "ip": "80.235.229.76",
+  "country": "gb",
+  "location": "Reino Unido"
+},
+{
+  "name": "Cinvestav",
+  "ip": "148.247.156.27",
+  "country": "mx",
+  "location": "México"
+},
+{
+  "name": "Cogent",
+  "ip": "114.114.115.115",
+  "country": "cn",
+  "location": "China"
+},
+{
+  "name": "NII",
+  "ip": "203.181.255.65",
+  "country": "jp",
+  "location": "Japón"
+},
+{
+  "name": "Aussie Broadband",
+  "ip": "159.196.127.73",
+  "country": "au",
+  "location": "Australia"
+},
+{
+  "name": "Indian Public DNS",
+  "ip": "36.50.50.50",
+  "country": "in",
+  "location": "India"
+},
+{
+  "name": "Superonline Iletisim H.",
+  "ip": "92.45.23.168",
+  "country": "tr",
+  "location": "Turquía"
+},
+{
+  "name": "Universidad de Mansoura",
+  "ip": "193.227.50.3",
+  "country": "eg",
+  "location": "Egipto"
+},
+{
+  "name": "TENET (The UNINET Project)",
+  "ip": "196.21.186.253",
+  "country": "za",
+  "location": "Sudáfrica"
+},
+{
+  "name": "Yandex",
+  "ip": "77.88.8.8",
+  "country": "ru",
+  "location": "Rusia"
+},
+{
+  "name": "IONOS",
+  "ip": "217.160.70.42",
+  "country": "de",
+  "location": "Alemania"
+},
+{
+  "name": "Gigahost",
+  "ip": "217.160.70.42",
+  "country": "no",
+  "location": "Noruega"
+}]

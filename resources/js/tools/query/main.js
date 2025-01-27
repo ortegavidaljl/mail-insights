@@ -1,13 +1,13 @@
 export const data = [{
-  link: '/rbl',
-  name: 'RBL',
-  description: 'Comprueba si una IP o hostname está en listas negras',
-  order: 5,
+  link: '/query',
+  name: 'Query',
+  description: 'Comprueba registros en multitud de servidores DNS',
+  order: 6,
   enable: true
 }];
 
 export const routes = [{
-    path: '/rbl',
+    path: '/query',
     component: () => import('@/views/AppView.vue'),
     children: [
       {
