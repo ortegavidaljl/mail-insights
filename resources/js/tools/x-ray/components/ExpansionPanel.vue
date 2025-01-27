@@ -1,11 +1,11 @@
 <template>
-	<details :class="'text-black rounded ' + color">
-		<summary class="open:rounded-b-none flex shadow-lg text-xl justify-between items-center cursor-pointer border-gray-200 bg-white rounded hover:bg-gray-200 border px-4 py-2">
+	<details :class="'text-black rounded-sm ' + color">
+		<summary class="open:rounded-b-none flex shadow-lg text-xl justify-between items-center cursor-pointer border-gray-200 bg-white rounded-sm hover:bg-gray-200 border px-4 py-2">
 			<span><span v-if="data.subtract">(-{{ data.subtract }}) </span> {{ panelTitles[data.message] }}</span>
 			<MDIIcon :icon="icon"/>
 		</summary>
 
-		<div class="p-4 bg-white mt-1 shadow-lg rounded">
+		<div class="p-4 bg-white mt-1 shadow-lg rounded-sm">
 			<slot name="text"></slot>
 			<slot name="custom"></slot>
 
@@ -23,7 +23,7 @@
 					</template>
 				</CodeBlock>
 				<template v-else-if="item.name == 'header'">
-					<table class='mt-2 min-w-full divide-y-2 divide-gray-200 bg-white text-sm rounded'>
+					<table class='mt-2 min-w-full divide-y-2 divide-gray-200 bg-white text-sm rounded-sm'>
 						<tbody class='divide-y divide-gray-200'>
 							<tr v-for="(value, key, index) in item.result" v-bind:key="index" class='odd:bg-gray-50 hover:bg-gray-200'>
 								<td class='p-2'>{{ key }}</td>

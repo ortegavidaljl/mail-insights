@@ -1,15 +1,15 @@
 <template>
 
   <div class="flex flex-row gap-4 mt-4">
-    <p class="p-2 w-1/2 bg-black/30 rounded flex flex-col text-center justify-center">
+    <p class="p-2 w-1/2 bg-black/30 rounded-sm flex flex-col text-center justify-center">
       <span class="font-bold">El nombre del ASN es</span>{{ report.network_name }}
     </p>
-    <p class="p-2 w-1/2 bg-black/30 rounded flex flex-col text-center justify-center">
+    <p class="p-2 w-1/2 bg-black/30 rounded-sm flex flex-col text-center justify-center">
       <span class="font-bold">Pertenece a</span>{{ ownedBy }}
     </p>
   </div>
 
-  <table class="mt-4 w-full bg-black/30 rounded">
+  <table class="mt-4 w-full bg-black/30 rounded-sm">
     <tbody>
       <tr>
         <td class="p-2 pb-0 text-center font-bold">Fecha de registro</td>
@@ -23,27 +23,27 @@
   </table>
 
   <div class="flex flex-row gap-4 mt-4">
-    <ul class="py-2 px-4 w-2/4 flex flex-col gap-2 bg-black/30 rounded">
+    <ul class="py-2 px-4 w-2/4 flex flex-col gap-2 bg-black/30 rounded-sm">
       <li class="text-center font-bold">Estado/s del ASN</li>
       <template v-for="status in report.status">
         <li class="tooltip w-max underline decoration-dotted decoration-white	cursor-help">{{ status }}
-          <span class="tooltiptext p-2 backdrop-blur bg-white/30 rounded">{{ rdapStatusInfo[status] }}</span>
+          <span class="tooltiptext p-2 backdrop-blur-sm bg-white/30 rounded-sm">{{ rdapStatusInfo[status] }}</span>
         </li>
       </template>
     </ul>
 
-    <ul class="py-2 px-4 w-2/4 flex flex-col gap-2 bg-black/30 rounded">
+    <ul class="py-2 px-4 w-2/4 flex flex-col gap-2 bg-black/30 rounded-sm">
       <li class="text-center font-bold">Servidor Whois</li>
       <li>{{ report.port43 }}</li>
     </ul>
   </div>
   
-  <p class="mt-4 p-2 w-full bg-black/30 rounded text-center">
+  <p class="mt-4 p-2 w-full bg-black/30 rounded-sm text-center">
     <span class="font-bold">Contactos</span>
   </p>
   
   <div class="mt-4 columns-1 md:columns-2 gap-4 space-y-4">
-    <ul class="py-2 px-4 gap-2 bg-black/30 flex flex-col break-words rounded break-inside-avoid-column" v-for="(contact, index) in contacts" :key="index">
+    <ul class="py-2 px-4 gap-2 bg-black/30 flex flex-col break-words rounded-sm break-inside-avoid-column" v-for="(contact, index) in contacts" :key="index">
       <li class="text-center font-bold">{{ contact.title }}</li>
       <li v-if="contact.roles"><span class="font-bold">Rol/es:</span> {{ contact.roles }}</li>
       <li v-if="contact.remarks"><span class="font-bold">{{ contact.remarks.title }}:</span> {{ contact.remarks.description }}</li>

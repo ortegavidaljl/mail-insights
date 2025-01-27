@@ -7,7 +7,7 @@
 		</header>
 
 		<div class="sm:text-lg text-base text-start w-11/12 md:w-3/4 lg:w-3/5 xl:w-2/4">
-			<input v-model="email" @keyup.enter="checkAccount" placeholder="cuenta@dominio.tld" type="text" class="shadow-md hover:shadow-xl text-black py-3 px-4 block w-full border-gray-200 shadow-lg rounded focus:z-10 focus:outline-none focus:ring"/>
+			<input v-model="email" @keyup.enter="checkAccount" placeholder="cuenta@dominio.tld" type="text" class="bg-white shadow-md hover:shadow-xl text-black py-3 px-4 block w-full border-gray-200 shadow-lg rounded-sm focus:z-10 focus:outline-hidden focus:ring-2 ring-blue-500"/>
 
 			<div v-if="isLoading" class="flex flex-row gap-2 text-sm items-center ml-1 mt-2">
 				<svg aria-hidden="true" class="w-3 h-3 text-gray-200 animate-spin fill-blue-600" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -17,7 +17,7 @@
 				<span>Comprobando la existencia de la cuenta...</span>
 			</div>
 
-			<table v-if="report" class="mt-4 min-w-full divide-y-2 divide-gray-200 bg-black/30 rounded">
+			<table v-if="report" class="mt-4 min-w-full divide-y-2 divide-gray-200 bg-black/30 rounded-sm">
 				<thead>
 					<tr><th class="p-2" colspan="2"><span class="flex justify-center items-center">
 						<MDIIcon :class="'pr-2 ' + color" :icon="report.status == 'success' ? 'CheckCircleOutline' : 'AlertCircleOutline'"/>

@@ -1,6 +1,6 @@
 <template>
   <header>
-    <nav class="h-12 flex items-center backdrop-blur-sm pl-8 px-4 text-gray-900 gap-4">
+    <nav class="h-12 flex items-center backdrop-blur-xs pl-8 px-4 text-gray-900 gap-4">
       <RouterLink class="text-2xl text-white mr-8" to="/">
         <span class="leading-[30px] align-top">Mail Insights</span>
       </RouterLink>

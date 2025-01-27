@@ -1,7 +1,7 @@
 <template>
   <i>
     <svg :height="size" :width="size" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-      <path :d="icons[`mdi${icon}`]" />
+      <path :d="icons[`mdi${icon}`]"/>
     </svg>
   </i> 
 </template>
@@ -30,7 +30,11 @@
                  "mdiHistory":mdiHistory,
                  "mdiPhone":mdiPhone,
                  "mdiDelete": mdiDelete,
-                 "mdiEye":mdiEye}
+                 "mdiEye":mdiEye,
+                 "mdiCheckboxBlankCircle": mdiCheckboxBlankCircle,
+                 "mdiCheckCircle": mdiCheckCircle,
+                 "mdiCloseCircle": mdiCloseCircle,
+                 "mdiClock": mdiClock}
 
   import {mdiAt,
     mdiInformation,
@@ -43,6 +47,10 @@
     mdiHistory,
     mdiDelete,
     mdiPhone,
-    mdiEye} from '@mdi/js'
+    mdiEye,
+    mdiCheckboxBlankCircle,
+    mdiCheckCircle,
+    mdiCloseCircle,
+    mdiClock} from '@mdi/js'
   
 </script>

@@ -157,7 +157,7 @@
 
 				<template #custom>
 					<div class="flex flex-row flex-wrap justify-center">
-						<a v-for="item, index in report.rbl.tests" v-bind:key="index" :href='item.url' target='_blank' :class="'flex flex-col shadow hover:shadow-md m-2 p-2 my-2 rounded ' + colorRBLTests(item.result)">
+						<a v-for="item, index in report.rbl.tests" v-bind:key="index" :href='item.url' target='_blank' :class="'flex flex-col shadow-sm hover:shadow-md m-2 p-2 my-2 rounded-sm ' + colorRBLTests(item.result)">
 							{{ item.name }}
 							<span class="text-sm">{{ item.result }}</span>
 						</a>

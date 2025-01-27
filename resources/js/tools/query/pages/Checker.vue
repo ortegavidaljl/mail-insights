@@ -8,9 +8,9 @@
 
 		<div class="sm:text-lg text-base text-start w-11/12 md:w-3/4 lg:w-3/5 xl:w-2/4">
 			<div class="flex flex-row gap-2">
-				<input v-model="element" :disabled="isLoading" @keyup.enter="checkAllDnsServers" placeholder="Hostname, IP" type="text" class="shadow-md hover:shadow-xl text-black py-3 px-4 block w-full border-gray-200 shadow-lg rounded focus:z-10 focus:outline-none focus:ring disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200 disabled:shadow-none"/>
+				<input v-model="element" :disabled="isLoading" @keyup.enter="checkAllDnsServers" placeholder="Hostname, IP" type="text" class="bg-white shadow-md hover:shadow-xl text-black py-3 px-4 block w-full border-gray-200 shadow-lg rounded-sm focus:z-10 focus:outline-hidden focus:ring-2 ring-blue-500 disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200 disabled:shadow-none"/>
 
-				<select v-model="type" :disabled="isLoading" class="w-64 form-select shadow-md hover:shadow-xl text-black py-3 px-4 block bg-white border-gray-200 shadow-lg rounded focus:z-10 focus:outline-none focus:ring disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200 disabled:shadow-none">
+				<select v-model="type" :disabled="isLoading" class="w-64 form-select shadow-md hover:shadow-xl text-black py-3 px-4 block bg-white border-gray-200 shadow-lg rounded-sm focus:z-10 focus:outline-hidden focus:ring-2 ring-blue-500 disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200 disabled:shadow-none">
 					<option v-for="record in resourceRecords" :value="record" :selected="record == 'A'">{{ record }}</option>
 				</select>
 				
@@ -27,33 +27,34 @@
 
 		<div class="sm:text-lg text-base text-start w-11/12 md:w-3/4 lg:w-4/5 xl:w-3/4">
 
-			<div class="mt-4 p-2 min-w-full flex rounded overflow-hidden gap-2">
+			<div class="mt-4 p-2 min-w-full flex rounded-sm overflow-hidden gap-2">
 				<div class="flex flex-col w-2/4 divide-y divide-slate-700">
 					
-					<div v-for="server in dnsServerList" class="flex flex-row justify-between items-center text-small">
+					<div v-for="server in dnsServerList" class="flex text-base flex-row justify-between items-center">
 						<div class="flex flex-row gap-2 items-center">
-							<img :src="'https://flagcdn.com/' + server.country + '.svg'" :alt="server.country" class="rounded w-8">
+							<img :src="'https://flagcdn.com/' + server.country + '.svg'" :alt="server.country" class="rounded-sm w-8">
 							<p>{{ server.location }}<br/>{{ server.name }}</p>
 						</div>
-						<div></div>
+						<div>{{ server?.output?.[0][server?.output?.length - 1] ?? "-" }}</div>
 					</div>
 
 				</div>
 
 				<div class="w-2/4">
 					<div class="flex justify-center gap-2 text-black mb-2 divide-none text-sm font-medium">
-						<button class="rounded bg-white px-3 py-1 shadow-md">
+						<button class="rounded-sm bg-white px-3 py-1 shadow-md">
 							Comprobación mundial
 						</button>
 
-						<button class="rounded hover:bg-white/50 hover:text-black text-white px-3 py-1 hover:shadow-md">
+						<button class="rounded-sm hover:bg-white/50 hover:text-black text-white px-3 py-1 hover:shadow-md">
 							Servidores autoritativos
 						</button>
   				</div>
 
 					<div id="map" class="relative">
 						<img src="../assets/world_map.svg" alt="World map"/>
-						<div v-for="server in dnsServerList" :class="(server.country + ' shadow-md ') + (server.status ? 'ok' : 'err') "></div>
+						<MDIIcon size="12px" v-for="server in dnsServerList" :class="server.country + ' ' + (server.color ?? 'fill-sky-600') " :icon="server.icon ?? 'CheckboxBlankCircle'"/>
+						<!--<div v-for="server in dnsServerList" :class="(server.country + ' shadow-md ') + (server.status ? 'ok' : 'err') "></div>-->
 					</div>
 				</div>
 				
@@ -78,13 +79,16 @@
 	}
 
 	#map {
-		div {
-			width: 8px;
+		i {
+			position: absolute;
+			background-color: black;
+      border-radius: 50%;
+			/*width: 8px;
 			height: 8px;
 			background-color: orange;
 			border-radius: 5px;
 			position: absolute;
-			border: 1px solid black;
+			border: 1px solid black;*/
 		}
 
 		.ca {
@@ -183,6 +187,7 @@
 <script setup>
 	import { ref, onMounted } from 'vue'
 	import { query } from '@/utils/rdap'
+	import MDIIcon from '@/components/MDIIcon.vue'
 	import api from '@/utils/api'
 	import dnsServers from '../assets/dns_server_list.json'
 
@@ -198,17 +203,20 @@
 
 	async function checkAllDnsServers() {
 		dnsServerList.value.map(async (server) => {
-			server.isLoading = true
-			
+			server.icon = "Clock"
+			server.color = "fill-orange-400"
+
 			await api.get(`/query/${type.value}/${element.value}/${server.ip}`)
 				.then((response) => {
 					server.output = response.data
 					server.status = (response.data.length >= 1);
+					server.icon = "CheckCircle"
+					server.color = "fill-green-600"
 				})
 				.catch(() => {
 					server.status = 'Error';
-				}).finally(() => {
-					server.isLoading = false
+					server.icon = "CloseCircle"
+					server.color = "fill-red-600"
 				})
 		});
 	}

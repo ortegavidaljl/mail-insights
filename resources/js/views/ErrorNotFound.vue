@@ -12,7 +12,7 @@
       <li>Pulsar en el siguiente botón.</li>
     </ul>
 
-    <RouterLink to="/" class="w-36 block rounded border text-center border-blue-600 bg-blue-600 px-6 pt-1 pb-2 font-medium text-white hover:bg-blue-700 hover:text-white focus:outline-none active:text-opacity-75">
+    <RouterLink to="/" class="w-36 block rounded-sm border text-center border-blue-600 bg-blue-600 px-6 pt-1 pb-2 font-medium text-white hover:bg-blue-700 hover:text-white focus:outline-hidden active:text-opacity-75">
       Ir al inicio
     </RouterLink>
   </div>

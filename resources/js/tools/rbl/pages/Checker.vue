@@ -7,7 +7,7 @@
 		</header>
 
 		<div class="sm:text-lg text-base text-start w-11/12 md:w-3/4 lg:w-3/5 xl:w-2/4">
-			<input v-model="element" :disabled="isLoading" @keyup.enter="checkAllRBLStatuses" placeholder="Hostname, IP" type="text" class="shadow-md hover:shadow-xl text-black py-3 px-4 block w-full border-gray-200 shadow-lg rounded focus:z-10 focus:outline-none focus:ring disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200 disabled:shadow-none"/>
+			<input v-model="element" :disabled="isLoading" @keyup.enter="checkAllRBLStatuses" placeholder="Hostname, IP" type="text" class="bg-white shadow-md hover:shadow-xl text-black py-3 px-4 block w-full border-gray-200 shadow-lg rounded-sm focus:z-10 focus:outline-hidden focus:ring-2 ring-blue-500 disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200 disabled:shadow-none"/>
 
 			<div v-if="isLoading" class="flex flex-row gap-2 text-sm items-center ml-1 mt-2">
 				<svg aria-hidden="true" class="w-3 h-3 text-gray-200 animate-spin fill-blue-600" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -18,7 +18,7 @@
 			</div>
 
 
-			<table class="mt-4 min-w-full divide-y-2 divide-gray-200 bg-black/30 rounded overflow-hidden">
+			<table class="mt-4 min-w-full divide-y-2 divide-gray-200 bg-black/30 rounded-sm overflow-hidden">
 				<thead>
 					<tr>
 						<th class="py-1 px-3 text-start">Nombre</th>
