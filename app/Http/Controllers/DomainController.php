@@ -12,7 +12,9 @@ class DomainController extends Controller
 
     $dns = new Dns();
 
-    if ($request->has('nameserver')) {
+    $nameserver = $request->nameserver ?? null;
+
+    if ($nameserver) {
       $result = $dns->useNameserver($request->nameserver);
     }
 

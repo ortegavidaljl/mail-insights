@@ -27,29 +27,12 @@ export const useMainStore = defineStore('main', () => {
 	
 		// Llama a loadToolsData cuando se inicializa el store
 		loadToolsData();
-		
-		/*[
-			{
-				link: '/x-ray', name: 'X-Ray',
-				description: 'Comprueba la puntuación de tus correos'
-			},*/
-			/*{
-				link: '/domain', name: 'Domain',
-				description: 'Obtén información sobre tu dominio y su zona DNS'
-			}
-			{
-				link: '/presence', name: 'Presence',
-				description: 'Comprueba si una cuenta de correo existe'
-			},
-			{
-				link: '/rbl-checker', name: 'RBL Checker',
-				description: 'Comprueba si una IP está en listas negras'
-			},
-			{
-				link: '/query', name: 'DNS Query',
-				description: 'Obtén información sobre registros DNS'
-			}*/
-		//]
+
+		const customDNSServers = ref([])
+
+		if (localStorage.getItem("custom_dns_servers")) {
+			customDNSServers.value = JSON.parse(localStorage.getItem("custom_dns_servers"))
+		}
 
 		const backgroundHexColors = {
 			'blue': ['#00b6ff', '#001193'],
@@ -92,5 +75,5 @@ export const useMainStore = defineStore('main', () => {
 			this.id = null;
 		}
 
-    return { appVersion, toolList, RDAPregistryData, backgroundHexStartColor, backgroundHexEndColor, backgroundHexChangeColor, isLoggedIn, login, logout }
+    return { customDNSServers, appVersion, toolList, RDAPregistryData, backgroundHexStartColor, backgroundHexEndColor, backgroundHexChangeColor, isLoggedIn, login, logout }
   })

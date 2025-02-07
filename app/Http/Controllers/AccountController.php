@@ -54,15 +54,9 @@ class AccountController extends Controller
 	public function check_existence(Request $request)
 	{
 		try {
-			if (filter_var($request->name, FILTER_VALIDATE_EMAIL) === false) {
-				echo "Formato de correo electrónico inválido";
-				return; // Detener la ejecución del script
-			}
-		
 			// Sanitizar la dirección de correo electrónico
 			$emailSanitizado = filter_var($request->name, FILTER_SANITIZE_EMAIL);
 			$emailSanitizado = htmlspecialchars($emailSanitizado);
-		
 		
 			$lele = new CheckEmail();
 
@@ -72,10 +66,10 @@ class AccountController extends Controller
 
 		} catch (ModelNotFoundException $e) {
 			// No existen dominios activos
-			return response()->json(['message' => $e->getMessage()], 404);
+			return response()->json($e->getMessage(), 404);
     } catch (\Exception $e) {
 			// Handle other general exceptions
-			return response()->json(['message' => 'Se produjo un error al comprobar el reporte: ' . $e->getMessage()], 500);
+			return response()->json($e->getMessage(), 500);
     }
 	}
 

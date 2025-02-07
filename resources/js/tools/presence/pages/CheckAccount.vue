@@ -1,7 +1,7 @@
 <template>
-	<div class="flex flex-col w-full justify-center items-center text-white text-center py-16 overflow-y-auto">
+	<div :class=" (!showLog ? 'justify-center' : '') + ' flex flex-col w-full items-center text-white text-center py-16 overflow-y-auto'">
 		
-		<header class="-mt-12">
+		<header :class="!showLog ? '-mt-12' : ''">
 			<h1 class="text-4xl text-center sm:text-5xl">Escribe una dirección</h1>
 			<p class="text-right mr-0.5 mb-16 sm:text-lg">... y pulsa Enter para comprobar si existe:</p>
 		</header>
@@ -34,8 +34,15 @@
 						<tr v-if="report.output.error" ><td class="text-right font-bold p-2">Error</td><td class="p-2">{{ report.output.error }}</td></tr>
 						<tr v-if="report.output.smtp_code"><td class="text-right font-bold p-2">Código SMTP</td><td class="p-2">{{ report.output.smtp_code }} {{ report.output.smtp_code_ex }}</td></tr>
 					</template>
+					
 				</tbody>
 			</table>
+			<span v-if="report" class="flex items-center my-2">
+				<span class="h-px flex-1 bg-black"></span>
+				<span @click="showLog = !showLog"  class="shrink-0 px-6 cursor-pointer">{{ showLog ? 'Ocultar registro ⯅' : 'Mostrar registro ⯆' }}</span>
+				<span class="h-px flex-1 bg-black"></span>
+			</span>
+			<pre v-if="showLog" class="max-h-[400px] bg-gray-300 overflow-auto rounded p-4 whitespace-pre text-black text-base font-mono">{{ report.log.join('\n') }}</pre>
 		</div>
 
 	</div>
@@ -49,6 +56,7 @@
 	const email = ref('')
 	const isLoading = ref(false)
 	const report = ref(null)
+	const showLog = ref(false)
 
 	const color = computed(() => {
 		switch (report.value.status) {
@@ -77,7 +85,8 @@
 			}
 		})
 		.catch(function (error) {
-			console.log(error);
+			console.log(error.response.data);
+			report.value = error.response.data
 		})
 		.finally(function () {
 			isLoading.value = false
