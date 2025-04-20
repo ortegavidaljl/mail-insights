@@ -134,7 +134,7 @@
 	import { query } from '@/utils/rdap'
 	import MDIIcon from '@/components/MDIIcon.vue'
 	import api from '@/utils/api'
-	import dnsServers from '../assets/dns_server_list.json'
+	import dnsServers from '@/tools/query/assets/dns_server_list.json'
 	import { useMainStore } from '@/stores/main'
 
   const store = useMainStore()
@@ -187,7 +187,6 @@
 		}
 
 		store.customDNSServers = dnsServerList.value
-		console.log(dnsServerList.value)
 		localStorage.setItem('custom_dns_servers', JSON.stringify(dnsServerList.value))
 	}
 
@@ -205,8 +204,6 @@
 						address: server.name,
 					})
 				})
-				console.log(dnsServerList.value)
-				//dnsServerList.value = data.registrar.nameservers
 				isAuthServerListLoading.value = false
 			})
 			.catch(() => {
@@ -216,7 +213,6 @@
 	}
 
 	function getGetPosition(position){
-		console.log(position)
 		return {
 			top: position[0] + '%',
 			right: position[1] + '%',

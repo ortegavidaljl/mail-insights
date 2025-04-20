@@ -3,7 +3,7 @@ export const data = [{
   name: 'Me',
   description: 'Comprueba tu dirección IPv4/6',
   order: 3,
-  enable: true
+  enable: import.meta.env.VITE_APP_ENABLED_TOOLS.includes('me')
 }];
 
 export const routes = [{

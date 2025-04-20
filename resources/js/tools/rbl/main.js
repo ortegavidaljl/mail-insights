@@ -3,7 +3,7 @@ export const data = [{
   name: 'RBL',
   description: 'Comprueba si una IP o hostname está en listas negras',
   order: 5,
-  enable: true
+  enable: import.meta.env.VITE_APP_ENABLED_TOOLS.includes('rbl')
 }];
 
 export const routes = [{

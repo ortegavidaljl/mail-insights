@@ -3,7 +3,7 @@ export const data = [{
   name: 'Lookup',
   description: 'Comprueba la información de dominios e IP mediante RDAP',
   order: 4,
-  enable: true
+  enable: import.meta.env.VITE_APP_ENABLED_TOOLS.includes('lookup')
 }];
 
 export const routes = [{
